@@ -3,6 +3,8 @@
 Brian Chau 30006118 b8z7
 Daniel Lu 75592063 a7e7
 
+Assignment 3
+
 -}
 
 rush_hour :: [String] -> [[String]]
