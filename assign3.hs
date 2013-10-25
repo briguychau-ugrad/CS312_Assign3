@@ -41,6 +41,17 @@ removeDupStates newstates explored
 	| elem (head newstates) explored	= removeDupStates (tail newstates) explored
 	| otherwise				= (head newstates):(removeDupStates (tail newstates) explored)
 
+replaceString :: [String] -> String -> Int -> [String]
+replaceString (b:bs) str index
+	| index == 0	= str:bs
+	| otherwise	= b:(replaceString bs str (index - 1))
+
+stringSame :: String -> Int -> Int -> Bool
+stringSame str from to
+	| (from + 1) == to			= (str !! from) == (str !! to)
+	| (str !! from) /= (str !! (from + 1))	= False
+	| otherwise				= stringSame str (from + 1) to
+
 generateAllMoves :: [String] -> [[String]]
 generateAllMoves posn = concat [generateLeftMoves posn,
 				generateRightMoves posn,
@@ -48,7 +59,58 @@ generateAllMoves posn = concat [generateLeftMoves posn,
 				generateDownMoves posn]
 
 generateLeftMoves :: [String] -> [[String]]
-generateLeftMoves posn = []
+generateLeftMoves posn = concat [moveleft 0 posn,
+				 moveleft 1 posn,
+				 moveleft 2 posn,
+				 moveleft 3 posn,
+				 moveleft 4 posn,
+				 moveleft 5 posn]
+
+moveleft :: Int -> [String] -> [[String]]
+moveleft index board = map inserter (canshiftL (board !! index) 5)
+	where inserter x = replaceString board x index
+
+canshiftL :: String -> Int -> [String]
+canshiftL str p
+	| p <= 1		= []
+	| (str !! p) == '-'	= canshiftL str (p - 1)
+	| p == 5		= if ((str !! 4) == '-')
+					then (canshiftL str 2)
+				  else if ((stringSame str 4 5) && ((str !! 3) == '-'))
+				  	then ((str !! 0):(str !! 1):(str !! 2):(str !! 4):(str !! 5):(str !! 3):[]):(canshiftL str 2)
+				  else if ((stringSame str 3 5) && ((str !! 2) == '-'))
+				  	then ((str !! 0):(str !! 1):(str !! 3):(str !! 4):(str !! 5):(str !! 2):[]):[]
+				  else if ((stringSame str 2 5) && ((str !! 1) == '-'))
+				  	then ((str !! 0):(str !! 2):(str !! 3):(str !! 4):(str !! 5):(str !! 1):[]):[]
+				  else if ((stringSame str 1 5) && ((str !! 0) == '-'))
+				  	then ((str !! 1):(str !! 2):(str !! 3):(str !! 4):(str !! 5):(str !! 0):[]):[]
+				  else
+				  	canshiftL str 4
+	| p == 4		= if ((str !! 3) == '-')
+					then (canshiftL str 3)
+				  else if ((stringSame str 3 4) && ((str !! 2) == '-'))
+				  	then ((str !! 0):(str !! 1):(str !! 3):(str !! 4):(str !! 2):(str !! 5):[]):[]
+				  else if ((stringSame str 2 4) && ((str !! 1) == '-'))
+				  	then ((str !! 0):(str !! 2):(str !! 3):(str !! 4):(str !! 1):(str !! 5):[]):[]
+				  else if ((stringSame str 1 4) && ((str !! 0) == '-'))
+				  	then ((str !! 1):(str !! 2):(str !! 3):(str !! 4):(str !! 0):(str !! 5):[]):[]
+				  else
+				  	canshiftL str 3
+	| p == 3		= if ((str !! 2) == '-')
+					then []
+				  else if ((stringSame str 2 3) && ((str !! 1) == '-'))
+				  	then ((str !! 0):(str !! 2):(str !! 3):(str !! 1):(str !! 4):(str !! 5):[]):[]
+				  else if ((stringSame str 1 3) && ((str !! 0) == '-'))
+				  	then ((str !! 1):(str !! 2):(str !! 3):(str !! 0):(str !! 4):(str !! 5):[]):[]
+				  else
+				  	canshiftL str 2
+	| p == 2		= if ((str !! 1) == '-')
+					then []
+				  else if ((stringSame str 1 2) && ((str !! 0) == '-'))
+				  	then ((str !! 1):(str !! 2):(str !! 0):(str !! 3):(str !! 4):(str !! 5):[]):[]
+				  else
+				  	[]
+	| otherwise		= []
 
 generateRightMoves :: [String] -> [[String]]
 generateRightMoves posn = concat [moveright 0 posn,
@@ -61,11 +123,6 @@ generateRightMoves posn = concat [moveright 0 posn,
 moveright :: Int -> [String] -> [[String]]
 moveright index board = map inserter (canshiftR (board !! index) 0)
 	where inserter x = replaceString board x index
-
-replaceString :: [String] -> String -> Int -> [String]
-replaceString (b:bs) str index
-	| index == 0	= str:bs
-	| otherwise	= b:(replaceString bs str (index - 1))
 
 canshiftR :: String -> Int -> [String]
 canshiftR str p
@@ -108,12 +165,6 @@ canshiftR str p
 				  else
 				  	[]
 	| otherwise		= []
-
-stringSame :: String -> Int -> Int -> Bool
-stringSame str from to
-	| (from + 1) == to			= (str !! from) == (str !! to)
-	| (str !! from) /= (str !! (from + 1))	= False
-	| otherwise				= stringSame str (from + 1) to
 
 generateUpMoves :: [String] -> [[String]]
 generateUpMoves posn = []
