@@ -30,7 +30,7 @@ statesearch unexplored path
 
 isgoal :: [String] -> Bool
 isgoal (_:_:x:_:_:_:[]) = exiting x
-	where exiting (_:_:_:_:e:f:[]) = (e == 'X') && (f == 'X')
+	where exiting (_:_:_:_:_:f:[]) = f == 'X'
 
 generateNewStates :: [String] -> [[String]] -> [[String]]
 generateNewStates x explored = removeDupStates (generateAllMoves x) explored
@@ -51,7 +51,69 @@ generateLeftMoves :: [String] -> [[String]]
 generateLeftMoves posn = []
 
 generateRightMoves :: [String] -> [[String]]
-generateRightMoves posn = []
+generateRightMoves posn = concat [moveright 0 posn,
+				  moveright 1 posn,
+				  moveright 2 posn,
+				  moveright 3 posn,
+				  moveright 4 posn,
+				  moveright 5 posn]
+
+moveright :: Int -> [String] -> [[String]]
+moveright index board = map inserter (canshiftR (board !! index) 0)
+	where inserter x = replaceString board x index
+
+replaceString :: [String] -> String -> Int -> [String]
+replaceString (b:bs) str index
+	| index == 0	= str:bs
+	| otherwise	= b:(replaceString bs str (index - 1))
+
+canshiftR :: String -> Int -> [String]
+canshiftR str p
+	| p >= 4		= []
+	| (str !! p) == '-'	= canshiftR str (p + 1)
+	| p == 0		= if ((str !! 1) == '-')
+					then (canshiftR str 2)
+				  else if ((stringSame str 0 1) && ((str !! 2) == '-'))
+				  	then ((str !! 2):(str !! 0):(str !! 1):(str !! 3):(str !! 4):(str !! 5):[]):(canshiftR str 3)
+				  else if ((stringSame str 0 2) && ((str !! 3) == '-'))
+				  	then ((str !! 3):(str !! 0):(str !! 1):(str !! 2):(str !! 4):(str !! 5):[]):[]
+				  else if ((stringSame str 0 3) && ((str !! 4) == '-'))
+				  	then ((str !! 4):(str !! 0):(str !! 1):(str !! 2):(str !! 3):(str !! 5):[]):[]
+				  else if ((stringSame str 0 4) && ((str !! 5) == '-'))
+				  	then ((str !! 5):(str !! 0):(str !! 1):(str !! 2):(str !! 3):(str !! 4):[]):[]
+				  else
+				  	canshiftR str 1
+	| p == 1		= if ((str !! 2) == '-')
+					then (canshiftR str 3)
+				  else if ((stringSame str 1 2) && ((str !! 3) == '-'))
+				  	then ((str !! 0):(str !! 3):(str !! 1):(str !! 2):(str !! 4):(str !! 5):[]):[]
+				  else if ((stringSame str 1 3) && ((str !! 4) == '-'))
+				  	then ((str !! 0):(str !! 4):(str !! 1):(str !! 2):(str !! 3):(str !! 5):[]):[]
+				  else if ((stringSame str 1 4) && ((str !! 5) == '-'))
+				  	then ((str !! 0):(str !! 5):(str !! 1):(str !! 2):(str !! 3):(str !! 4):[]):[]
+				  else
+				  	canshiftR str 2
+	| p == 2		= if ((str !! 3) == '-')
+					then []
+				  else if ((stringSame str 2 3) && ((str !! 4) == '-'))
+				  	then ((str !! 0):(str !! 1):(str !! 4):(str !! 2):(str !! 3):(str !! 5):[]):[]
+				  else if ((stringSame str 2 4) && ((str !! 5) == '-'))
+				  	then ((str !! 0):(str !! 1):(str !! 5):(str !! 2):(str !! 3):(str !! 4):[]):[]
+				  else
+				  	canshiftR str 3
+	| p == 3		= if ((str !! 4) == '-')
+					then []
+				  else if ((stringSame str 3 4) && ((str !! 5) == '-'))
+				  	then ((str !! 0):(str !! 1):(str !! 2):(str !! 5):(str !! 3):(str !! 4):[]):[]
+				  else
+				  	[]
+	| otherwise		= []
+
+stringSame :: String -> Int -> Int -> Bool
+stringSame str from to
+	| (from + 1) == to			= (str !! from) == (str !! to)
+	| (str !! from) /= (str !! (from + 1))	= False
+	| otherwise				= stringSame str (from + 1) to
 
 generateUpMoves :: [String] -> [[String]]
 generateUpMoves posn = []
