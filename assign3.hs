@@ -30,7 +30,7 @@ statesearch unexplored path
 
 isgoal :: [String] -> Bool
 isgoal (_:_:x:_:_:_:[]) = exiting x
-	where exiting (_:_:_:_:_:f:[]) = f == 'X'
+	where exiting (_:_:_:_:e:f:[]) = e == 'X' && f == 'X'
 
 generateNewStates :: [String] -> [[String]] -> [[String]]
 generateNewStates x explored = removeDupStates (generateAllMoves x) explored
@@ -64,10 +64,10 @@ boardSame brd col from to
 	| otherwise							= boardSame brd col (from + 1) to
 
 generateAllMoves :: [String] -> [[String]]
-generateAllMoves posn = concat [generateLeftMoves posn,
-				generateRightMoves posn,
-				generateUpMoves posn,
-				generateDownMoves posn]
+generateAllMoves posn = concat [generateRightMoves posn,
+				generateDownMoves posn,
+				generateLeftMoves posn,
+				generateUpMoves posn]
 
 generateLeftMoves :: [String] -> [[String]]
 generateLeftMoves posn = concat [moveleft 0 posn,
