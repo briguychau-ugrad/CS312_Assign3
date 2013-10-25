@@ -180,12 +180,7 @@ generateUpMoves posn = concat [moveup 0 posn,
 			       moveup 3 posn,
 			       moveup 4 posn,
 			       moveup 5 posn]
-	where moveup index board = concat[canshiftU board index 0,
-					  canshiftU board index 1,
-					  canshiftU board index 2,
-					  canshiftU board index 3,
-					  canshiftU board index 4,
-					  canshiftU board index 5]
+	where moveup index board = canshiftU board 5 index
 
 canshiftU :: [String] -> Int -> Int -> [[String]]
 canshiftU board r c
@@ -286,12 +281,7 @@ generateDownMoves posn = concat [movedown 0 posn,
 				 movedown 3 posn,
 				 movedown 4 posn,
 				 movedown 5 posn]
-	where movedown index board = concat[canshiftD board index 0,
-					    canshiftD board index 1,
-					    canshiftD board index 2,
-					    canshiftD board index 3,
-					    canshiftD board index 4,
-					    canshiftD board index 5]
+	where movedown index board = canshiftD board 0 index
 
 canshiftD :: [String] -> Int -> Int -> [[String]]
 canshiftD board r c
