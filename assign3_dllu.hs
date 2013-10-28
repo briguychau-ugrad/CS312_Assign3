@@ -15,8 +15,9 @@ rush_hour s
 
 -- checks if the grid is 6x6
 -- all characters other than '-' and 'A' to 'Z' are ignored and treated as obstacles
+-- checks that row 2 (0-indexed) has a car of colour 'X'
 valid :: [String] -> Bool
-valid s = (length s) == 6 && sum([bool2int ((length (s!!i))==6) | i <- [0..5]]) == 6
+valid s = (length s) == 6 && sum([bool2int ((length (s!!i))==6) | i <- [0..5]]) == 6 && length (filter (=='X') (s!!2)) == 2
 
 -- checks if state is a goal state
 isgoal :: [String] -> Bool
@@ -24,12 +25,12 @@ isgoal state = (state!!2!!5)=='X'
 
 -- performs state search
 search :: [[String]] -> [[String]] -> [[String]]
-search unexplored path
-	| null unexplored		= []
-	| isgoal (head unexplored)	= (head unexplored):path
+search frontier visited
+	| null frontier		= []
+	| isgoal (head frontier)	= (head frontier):visited
 	| (not (null newstates))	= newstates
-	| otherwise			= search (tail unexplored) path
-	where newstates = search (generatemoves (head unexplored) path) ((head unexplored):path)
+	| otherwise			= search (tail frontier) visited
+	where newstates = search (generatemoves (head frontier) visited) ((head frontier):visited)
 
 -- generates all moves for this state
 -- sorted in descending order of heuristic value
@@ -76,12 +77,25 @@ heuristicsort (x:xs) = (heuristicsort (filter (heuristiccompare x) xs)) ++ [x] +
 	where heuristiccompare a b = (heuristic a) < (heuristic b)
 	      heuristiccompare2 a b = (heuristic a) >= (heuristic b)
 
+-- computes heuristic value of a state. The higher the value, the more desirable.
+heuristic :: [String] -> Int
+heuristic s = heuristic1 s + heuristic2 s
+
+-- counts the distance the 'X' car is from the goal
+-- minus the number of cars blocking the 'X' car from the goal
+heuristic1 :: [String] -> Int
+heuristic1 [_,_,'X':'X':xs,_,_,_] = 0 + length (filter (=='-') xs)
+heuristic1 [_,_,_:'X':'X':xs,_,_,_] = 1 + length (filter (=='-') xs)
+heuristic1 [_,_,_:_:'X':'X':xs,_,_,_] = 2 + length (filter (=='-') xs)
+heuristic1 [_,_,_:_:_:'X':'X':xs,_,_,_] = 3 + length (filter (=='-') xs)
+heuristic1 [_,_,_:_:_:_:'X':'X':xs,_,_,_] = 4 + length (filter (=='-') xs)
+
 -- counts the number of cars on the edges of the grid
 -- cars in the corners are counted twice
 -- the idea is that when most cars are on the edges, you have more room to move
-heuristic :: [String] -> Int
-heuristic s = sum [(eval (s!!j!!0)) + (eval (s!!0!!j)) + (eval (s!!j!!5)) + (eval (s!!0!!5)) | j <-[0..5]]
-	where eval a = bool2int (a/='-')
+heuristic2 :: [String] -> Int
+heuristic2 s = sum [(eval (s!!j!!0)) + (eval (s!!0!!j)) + (eval (s!!j!!5)) + (eval (s!!0!!5)) | j <-[0..5]]
+		where eval a = bool2int (a/='-')
 
 -- as a c++ programmer I sometimes add bools as if they were ints lol
 bool2int :: Bool -> Int
