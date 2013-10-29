@@ -1,4 +1,6 @@
 -- ["--B---","--B---","XXB---","--AA--","------","------"]
+-- ["AA---B","C--D-B","CXXD-B","C--D--","E---FF","E-GGG-"]
+-- ["-----A","-----A","-XX--A","-CCCCC","-DDDDD","-EEEEE"]
 {-
 
 Brian Chau 30006118 b8z7
@@ -7,7 +9,7 @@ Daniel Lu 75592063 a7e7
 Assignment 3 CPSC 312
 
 -}
-
+-- print the state for pretty debugging
 printstate :: [String] -> IO()
 printstate s = do
     putStrLn (s!!0)
