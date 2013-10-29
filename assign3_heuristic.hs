@@ -1,6 +1,7 @@
 -- ["--B---","--B---","XXB---","--AA--","------","------"]
 -- ["AA---B","C--D-B","CXXD-B","C--D--","E---FF","E-GGG-"]
 -- ["-----A","-----A","-XX--A","-CCCCC","-DDDDD","-EEEEE"]
+-- ["-MMGBA","-NNGBA","-XXGBA","--FCCC","--FDDD","---EEE"]
 {-
 
 Brian Chau 30006118 b8z7
@@ -9,7 +10,13 @@ Daniel Lu 75592063 a7e7
 Assignment 3 CPSC 312
 
 -}
--- print the state for pretty debugging
+
+rush_hour :: [String] -> [[String]]
+rush_hour s
+    | valid s = reverse (search [[s]] [])
+    | otherwise = error "Invalid starting position."
+
+-- print the state for pretty output
 printstate :: [String] -> IO()
 printstate s = do
     putStrLn (s!!0)
@@ -19,10 +26,24 @@ printstate s = do
     putStrLn (s!!4)
     putStrLn (s!!5)
 
-rush_hour :: [String] -> [[String]]
-rush_hour s
-    | valid s = reverse (search [[s]] [])
-    | otherwise = error "Invalid starting position."
+-- print the entire solution
+printsolution :: [[String]] -> IO()
+printsolution [] = putStrLn "End of solution"
+printsolution (x:y:xs) = do
+    printstate x
+    putStrLn " "
+    putStr "Moving car "
+    putStrLn (diffstate x y)
+    printsolution (y:xs)
+printsolution (x:xs) = do
+    printstate x
+    putStrLn " "
+    printsolution xs
+
+-- finds out which car(s) moved between two states
+diffstate :: [String] -> [String] -> String
+diffstate s u = getcars (concat [diffstr (s!!j) (u!!j) | j <-[0..5]])
+    where diffstr x y = concat [(x!!j):(y!!j):[] | j <-[0..5], ((x!!j) /= (y!!j))]
 
 -- checks if the grid is 6x6
 -- all characters other than '-' and 'A' to 'Z' are ignored and treated as obstacles
